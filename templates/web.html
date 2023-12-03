@@ -52,6 +52,31 @@
             border: 1px solid #ccc;
         }
 
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('static/images/bg.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10;
+        }
+
+        #startButton {
+            background: url('static/images/start.png') no-repeat center center;
+            background-size: contain;
+            border: none;
+            padding: 40px 70px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
         button {
             font-family: 'Poppins', sans-serif;
             background-color: #8dabce; /* muted purple */
@@ -127,34 +152,45 @@
             margin: 10px;
             padding: 10px;
             border-radius: 10px;
-            background-color: lightblue;
+            background-color: #ffebc2;
             box-shadow: 0px 0px 5px #aaa;
         }
 
         .edge {
+            display: inline-block;
             margin: 5px;
-            color: #333;
+            padding: 10px;
+            color: #ffffff;
+            background-image: url('static/images/baconButton.png');
+            background-size: 100% 100%;
             font-style: italic;
         }
     </style>
 </head>
 <body>
-    <div>
-        <h1>Bacon Bridge: A Movie Network Adventure</h1>
-        <h2>By the Bacon-Path Pioneers</h2>
-        <input type="text" id="startActor" placeholder="Start Actor">
-        <input type="text" id="endActor" placeholder="End Actor">
-        <button id="dijkstraButton" onclick="startProcess('dijkstra')">Find Path with Dijkstra</button>
-        <button id="bfsButton" onclick="startProcess('bfs')">Find Path with BFS</button>
-        <button id="clearButton" onclick="clearResults()">Clear Results</button>
+    <div id="startScreen">
+        <h1>Welcome to Bacon Bridge</h1>
+        <p>Based on the Six Degrees of Kevin Bacon, this application lets you choose between Dijkstra's and BFS to determine the shortest path of shared movies between two given actors!</p>
+        <button id="startButton"></button>
     </div>
-    <div id="progressContainer">
-        <div id="progressBar"></div>
+    <div id="mainContent" style="display: none;">
+        <div>
+            <h1>Bacon Bridge: A Movie Network Adventure</h1>
+            <h2>By the Bacon-Path Pioneers</h2>
+            <input type="text" id="startActor" placeholder="Start Actor">
+            <input type="text" id="endActor" placeholder="End Actor">
+            <button id="dijkstraButton" onclick="startProcess('dijkstra')">Find Path with Dijkstra</button>
+            <button id="bfsButton" onclick="startProcess('bfs')">Find Path with BFS</button>
+            <button id="clearButton" onclick="clearResults()">Clear Results</button>
+        </div>
+        <div id="progressContainer">
+            <div id="progressBar"></div>
+        </div>
+        <div id="loadingScreen" style="display: none;">
+            <img src="static/images/KEVINBACON.png" id="loadingImage" style="width: 170px; height: 240px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"/>
+        </div>
+        <div id="result"></div>
     </div>
-    <div id="loadingScreen" style="display: none;">
-        <img src="static/images/KEVINBACON.png" id="loadingImage" style="width: 170px; height: 240px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"/>
-    </div>
-    <div id="result"></div>
     <script>
         function findPath() {
             var startActor = document.getElementById('startActor').value;
@@ -335,6 +371,14 @@
 
             resultDiv.appendChild(graphContainer);
         }
+
+        document.getElementById('startButton').addEventListener('click', function() {
+            // hide the start screen
+            clearResults();
+            document.getElementById('startScreen').style.display = 'none';
+            // Show main content of the app
+            document.getElementById('mainContent').style.display = 'block';
+        });
 
     </script>
 </body>
