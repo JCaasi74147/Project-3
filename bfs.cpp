@@ -23,8 +23,6 @@ vector<int> reconstructPathBFS(const Graph& graph, int startActorId, int targetA
 }
 
 vector<int> bfs(const Graph& graph, int startActorId, int targetActorId) {
-    cout << "Running Breadth-First Search Algorithm..." << endl;
-
     unordered_map<int, int> predecessor;
     unordered_map<int, bool> visited;
     queue<int> q;

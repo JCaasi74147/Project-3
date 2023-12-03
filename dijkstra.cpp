@@ -40,8 +40,6 @@ vector<int> reconstructPath(const Graph& graph, int startActorId, int targetActo
 }
 
 vector<int> dijkstra(const Graph& graph, int startActorId, int targetActorId) {
-    cout << "Running Dijkstra's Algorithm..." << endl;
-
     // Use double for infinite distances
     const double INF = numeric_limits<double>::infinity();
 

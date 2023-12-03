@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Actor Pathfinder</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f8f8; /* the fallback color in case the image doesn't load */
+            background-image: url('static/images/bg.png'); /* path to bg image */
+            background-size: cover;
+            background-position-y: 12%;
+            background-repeat: repeat;
+            background-attachment: scroll;
+            color: #2a3d66;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #a52a2a;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 5px;
+            padding: 5px;
+            font-size: 48px;
+        }
+
+        h2 {
+            margin: 5px;
+            padding: 5px;
+            font-size: 24px;
+        }
+
+        #progressBar {
+            width: 0;
+            height: 20px;
+            background-color: #555;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        #progressContainer {
+            width: 50%;
+            background-color: #ddd;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            font-family: 'Poppins', sans-serif;
+            background-color: #8dabce; /* muted purple */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #636e7a; /*  grey */
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #result {
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 600px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .falling-image {
+            position: absolute;
+            transition: opacity 0.1s;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-600%);
+                opacity: 1;
+            }
+            30% {
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(400vh);
+                opacity: 0;
+            }
+        }
+
+        .falling-images-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>The Six Degrees of Kevin Bacon</h1>
+        <h2>Find a path between two actors...</h2>
+        <input type="text" id="startActor" placeholder="Start Actor">
+        <input type="text" id="endActor" placeholder="End Actor">
+        <button id="dijkstraButton" onclick="startProcess('dijkstra')">Find Path with Dijkstra</button>
+        <button id="bfsButton" onclick="startProcess('bfs')">Find Path with BFS</button>
+        <button id="clearButton" onclick="clearResults()">Clear Results</button>
+    </div>
+    <div id="progressContainer">
+        <div id="progressBar"></div>
+    </div>
+    <div id="result"></div>
+    <script>
+        function findPath() {
+            var startActor = document.getElementById('startActor').value;
+            var endActor = document.getElementById('endActor').value;
+
+            fetch('/find-path', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ startActor: startActor, endActor: endActor, algorithm: algorithm }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = data.path;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+        function startProcess(algorithm) {
+            document.getElementById('startActor').disabled = true;
+            document.getElementById('endActor').disabled = true;
+            document.getElementById('dijkstraButton').disabled = true;
+            document.getElementById('bfsButton').disabled = true;
+            document.getElementById('clearButton').disabled = true; // Disable the clear results button
+
+            // Clear the previous result and progress bar
+            document.getElementById('result').innerText = '';
+            updateProgressBar(0);
+
+            var startActor = document.getElementById('startActor').value;
+            var endActor = document.getElementById('endActor').value;
+
+            fetch('/start-process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ startActor: startActor, endActor: endActor, algorithm: algorithm }),
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+
+            checkProgress();
+        }
+        function checkProgress() {
+            fetch('/check-progress')
+                .then(response => response.json())
+                .then(data => {
+                    updateProgressBar(data.progress);
+
+                    if (data.progress < 100) {
+                        setTimeout(checkProgress, 100);  // Poll every 10th of a second
+                    } else {
+                        setTimeout(fetchFinalResult, 3500);  // Fetch the final result when done
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function fetchFinalResult() {
+            fetch('/get-final-result') // Assuming '/get-final-result' is the endpoint to get the result
+                .then(response => response.json())
+                .then(data => {
+                    // Display the result on the web page
+                    console.log("Received data:", data);
+                    displayResult(data.result);
+                    document.getElementById('clearButton').disabled = false;
+
+                })
+                .catch(error => {
+                    console.error('Error fetching final result:', error);
+                });
+        }
+
+        function updateProgressBar(progress) {
+            // Update the progress bar on the web page
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+                progressBar.innerText = progress + '%';
+            }
+        }
+
+        function displayResult(result) {
+            // Display the final result
+            const resultDiv = document.getElementById('result');
+            if (resultDiv) {
+                resultDiv.innerText = result;
+            }
+        }
+
+        function clearResults() {
+            // Disable the algorithm buttons while clearing
+            document.getElementById('startActor').disabled = true;
+            document.getElementById('endActor').disabled = true;
+            document.getElementById('dijkstraButton').disabled = true;
+            document.getElementById('bfsButton').disabled = true;
+            document.getElementById('clearButton').disabled = true; // Disable the clear results button
+
+            // Make a request to clear files using fetch
+            fetch('/clear-files')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                    // Clear the results displayed on the page
+                    document.getElementById('result').innerText = '';
+                    updateProgressBar(0);
+
+                    const resultDiv = document.getElementById('result');
+                    const numberOfImages = 150; // 200 falling images
+                    const imagesContainer = document.createElement('div');
+
+                    for (let i = 0; i < numberOfImages; i++) {
+                        const startX = Math.random() * window.innerWidth; // Random X position
+                        const startY = Math.random() * window.innerHeight - window.innerHeight; // Start from the top of the screen
+                        const fallDuration = `${Math.floor(Math.random() * 6)+4}s`;
+                        const scale = Math.random() * 5 + 1; // Random scale factor between 1 and 5
+                        const image = document.createElement('img');
+                        image.src = `static/images/bacon${Math.floor(Math.random() * 3) + 1}.png`; // Random bacon image
+                        image.className = 'falling-image';
+                        image.style.width = `${20 * scale}px`; // Set the scaled width
+                        image.style.height = `${10 * scale}px`; // Set the scaled height
+                        image.style.left = `${startX}px`; // Set the random X position
+                        image.style.top = `${startY}px`; // Set the start Y position
+                        image.style.animation = `fall ${fallDuration} linear`; // Set the animation duration
+                        imagesContainer.appendChild(image);
+                    }
+
+                    imagesContainer.className = 'falling-images-container'; // Add a container class
+                    resultDiv.appendChild(imagesContainer);
+
+                    setTimeout(() => {
+                        imagesContainer.innerHTML = ''; // Clear the falling images
+                        // Re-enable the algorithm buttons
+                        document.getElementById('startActor').disabled = false;
+                        document.getElementById('endActor').disabled = false;
+                        document.getElementById('dijkstraButton').disabled = false;
+                        document.getElementById('bfsButton').disabled = false;
+                        // Clear the results displayed on the page
+                        document.getElementById('result').innerText = '';
+                        updateProgressBar(0);
+                    }, 4000);
+                })
+                .catch(error => {
+                console.error('Error:', error);
+                });
+        }
+
+    </script>
+</body>
+</html>

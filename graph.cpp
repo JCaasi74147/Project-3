@@ -78,9 +78,9 @@ public:
     }
 
     void buildGraphFromCSV(const string& filename) {
-        cout << "Building the graph of over 6 million actor-movie connections. Please wait..." << endl;
-
         ifstream file(filename);
+        std::ofstream progress_file("progress.txt", std::ofstream::out | std::ofstream::trunc); // File to write progress updates
+
         if (!file.is_open()) {
             cerr << "Failed to open file: " << filename << endl;
             return;
@@ -104,8 +104,8 @@ public:
             // dynamically display the progress of the graph
             n++;
             if (n % 50000 == 0) {
-                cout << "\r" << fixed << setprecision(2) << (static_cast<double>(n) / 6200000) * 100.0 << "\% done...";
-                cout.flush(); // Ensure the output is displayed immediately
+                double progress = (static_cast<double>(n) / 6200000) * 100.0;
+                progress_file << progress << std::endl; // Write progress to file
             }
             string fields[8];
             parseCSVLine(line, fields);
@@ -126,7 +126,6 @@ public:
             if (!movie) movie = make_shared<Movie>(movie_id, weight);
             addEdge(actor_id_1, actor_id_2, movie, movie_title);
         }
-        cout << "\r" << fixed << setprecision(2) << 100.00 << "\% done..." << endl;
     }
 
     const unordered_map<int, string>& getActorNames() const { return actorNames; }
