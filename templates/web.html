@@ -115,6 +115,27 @@
         #loadingImage {
             animation: spin 2s linear infinite;
         }
+
+        .graph-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .node {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: lightblue;
+            box-shadow: 0px 0px 5px #aaa;
+        }
+
+        .edge {
+            margin: 5px;
+            color: #333;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -200,12 +221,12 @@
         }
 
         function fetchFinalResult() {
-            fetch('/get-final-result') // Assuming '/get-final-result' is the endpoint to get the result
+            fetch('/get-final-result')
                 .then(response => response.json())
                 .then(data => {
-                    // Display the result on the web page
-                    console.log("Received data:", data);
-                    displayResult(data.result);
+                    const startActor = document.getElementById('startActor').value;
+                    const endActor = document.getElementById('endActor').value;
+                    displayGraphResult(data.result, startActor, endActor);
                     document.getElementById('clearButton').disabled = false;
                     document.getElementById('loadingScreen').style.display = 'none';
                 })
@@ -224,11 +245,7 @@
         }
 
         function displayResult(result) {
-            // Display the final result
-            const resultDiv = document.getElementById('result');
-            if (resultDiv) {
-                resultDiv.innerText = result;
-            }
+            displayGraphResult(result);
         }
 
         function clearResults() {
@@ -286,6 +303,37 @@
                 .catch(error => {
                 console.error('Error:', error);
                 });
+        }
+
+        function displayGraphResult(result, startActor, endActor) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            const introText = `The shortest path from ${startActor} to ${endActor} is:`;
+            const header = document.createElement('h3');
+            header.textContent = introText;
+            resultDiv.appendChild(header);
+
+            let parts = result.split('<').filter(Boolean); // removes any empty strings from the array
+            const graphContainer = document.createElement('div');
+            graphContainer.className = 'graph-container';
+
+            // create & append nodes and edges
+            parts.forEach((part, index) => {
+                if (index % 2 === 0) { // Actor nodes
+                    let node = document.createElement('div');
+                    node.className = 'node';
+                    node.textContent = part.trim();
+                    graphContainer.appendChild(node);
+                } else { // Movie edges
+                    let edge = document.createElement('div'); //from 'span' to 'div' for block display
+                    edge.className = 'edge';
+                    edge.textContent = part.trim();
+                    graphContainer.appendChild(edge);
+                }
+            });
+
+            resultDiv.appendChild(graphContainer);
         }
 
     </script>

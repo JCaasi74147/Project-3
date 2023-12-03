@@ -56,13 +56,12 @@ int main(int argc, char *argv[]) {
     }
 
     // Output the shortest path
-    cout << "The shortest path from " << startActorName << " to " << targetActorName << " is:" << endl;
     int n = 0;
     for (auto it = path.begin(); it != path.end() - 1; it++) {
         if (n % 2 == 0) {
-            cout << actorNames.at(*it) << " <--{";
+            cout << actorNames.at(*it) << "<";
         } else {
-            cout << movieGraph.getMovieNames().at(*it) << "}--> ";
+            cout << movieGraph.getMovieNames().at(*it) << "<";
         }
         n++;
     }
