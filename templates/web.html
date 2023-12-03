@@ -106,12 +106,21 @@
             top: 0;
             left: 0;
         }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        #loadingImage {
+            animation: spin 2s linear infinite;
+        }
     </style>
 </head>
 <body>
     <div>
-        <h1>The Six Degrees of Kevin Bacon</h1>
-        <h2>Find a path between two actors...</h2>
+        <h1>Bacon Bridge: A Movie Network Adventure</h1>
+        <h2>By the Bacon-Path Pioneers</h2>
         <input type="text" id="startActor" placeholder="Start Actor">
         <input type="text" id="endActor" placeholder="End Actor">
         <button id="dijkstraButton" onclick="startProcess('dijkstra')">Find Path with Dijkstra</button>
@@ -120,6 +129,9 @@
     </div>
     <div id="progressContainer">
         <div id="progressBar"></div>
+    </div>
+    <div id="loadingScreen" style="display: none;">
+        <img src="static/images/KEVINBACON.png" id="loadingImage" style="width: 170px; height: 240px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"/>
     </div>
     <div id="result"></div>
     <script>
@@ -148,6 +160,7 @@
             document.getElementById('dijkstraButton').disabled = true;
             document.getElementById('bfsButton').disabled = true;
             document.getElementById('clearButton').disabled = true; // Disable the clear results button
+            document.getElementById('loadingScreen').style.display = 'block';
 
             // Clear the previous result and progress bar
             document.getElementById('result').innerText = '';
@@ -194,7 +207,7 @@
                     console.log("Received data:", data);
                     displayResult(data.result);
                     document.getElementById('clearButton').disabled = false;
-
+                    document.getElementById('loadingScreen').style.display = 'none';
                 })
                 .catch(error => {
                     console.error('Error fetching final result:', error);

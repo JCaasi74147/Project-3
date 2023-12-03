@@ -261,41 +261,45 @@ int main() {
                 window.display();
             }
         }
-        if (windowNum == 3){
-            //loading screen
-            //plug actor names into code
-            auto& actorNames = movieGraph.getActorNames();
-            int startActorId = -1, targetActorId = -1;
-            for (const auto& pair : actorNames) {
-                if (pair.second == name1) {
-                    startActorId = pair.first;
-                }
-                if (pair.second == name2) {
-                    targetActorId = pair.first;
-                }
-            }
-            if (startActorId == -1 || targetActorId == -1) {
-                windowNum += 1;
-            }
+        /*
+           integrated into web.html
+        */
 
-            if (dj) {
-                path = dijkstra(movieGraph, startActorId, targetActorId);
-            } else {
-                path = bfs(movieGraph, startActorId, targetActorId);
-            }
-            window.clear(sf::Color::Black);
-            window.display();
-        }
-        if (windowNum == 4){
-            //error screen
-            //ex. actor was not found in the database or name was incorectly entered
-            //add button to retry ->windowNum = 2
-        }
-        if(windowNum == 5){
-            // display output
-            //add button to reset ->windowNum = 2
-        }
-
-    }
+//        if (windowNum == 3){
+//            //loading screen
+//            //plug actor names into code
+//            auto& actorNames = movieGraph.getActorNames();
+//            int startActorId = -1, targetActorId = -1;
+//            for (const auto& pair : actorNames) {
+//                if (pair.second == name1) {
+//                    startActorId = pair.first;
+//                }
+//                if (pair.second == name2) {
+//                    targetActorId = pair.first;
+//                }
+//            }
+//            if (startActorId == -1 || targetActorId == -1) {
+//                windowNum += 1;
+//            }
+//
+//            if (dj) {
+//                path = dijkstra(movieGraph, startActorId, targetActorId);
+//            } else {
+//                path = bfs(movieGraph, startActorId, targetActorId);
+//            }
+//            window.clear(sf::Color::Black);
+//            window.display();
+//        }
+//        if (windowNum == 4){
+//            //error screen
+//            //ex. actor was not found in the database or name was incorectly entered
+//            //add button to retry ->windowNum = 2
+//        }
+//        if(windowNum == 5){
+//            // display output
+//            //add button to reset ->windowNum = 2
+//        }
+//
+//    }
     return 0;
 }
