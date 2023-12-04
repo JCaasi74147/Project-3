@@ -270,12 +270,36 @@
                     const startActor = document.getElementById('startActor').value;
                     const endActor = document.getElementById('endActor').value;
                     displayGraphResult(data.result, startActor, endActor);
+
+                    // Check if the time is provided in the response
+                    if (data.time) {
+                        displayExecutionTime(data.time);
+                    }
+
+                    // Re-enable the input fields and buttons
+                    document.getElementById('startActor').disabled = false;
+                    document.getElementById('endActor').disabled = false;
+                    document.getElementById('dijkstraButton').disabled = false;
+                    document.getElementById('bfsButton').disabled = false;
                     document.getElementById('clearButton').disabled = false;
                     document.getElementById('loadingScreen').style.display = 'none';
                 })
                 .catch(error => {
                     console.error('Error fetching final result:', error);
                 });
+        }
+
+        function displayExecutionTime(time) {
+            const timeText = `This algorithm took ${time} microseconds.`;
+            const timeDisplay = document.createElement('p');
+            timeDisplay.textContent = timeText;
+            timeDisplay.style.textAlign = 'center'; // Center align the text
+            timeDisplay.style.margin = '0 auto';     // Set margin to auto for left and right
+            timeDisplay.style.width = '100%';        // Set width to 100% of its parent container
+            timeDisplay.style.fontSize = '18px';     // Optional: Adjust font size as needed
+            timeDisplay.style.color = '#2a3d66';
+
+            document.getElementById('result').appendChild(timeDisplay); // Append the time display to the result div
         }
 
         function updateProgressBar(progress) {

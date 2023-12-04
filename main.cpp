@@ -4,6 +4,7 @@
 #include "graph.cpp"
 #include "dijkstra.cpp"
 #include "bfs.cpp"
+#include <chrono>
 
 using namespace std;
 
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]) {
     // You can choose a default algorithm or add another argument to specify it
     string algorithm = argv[3];  // "dijkstra" or "bfs"
 
-    vector<int> path;
+    auto start = chrono::high_resolution_clock::now();vector<int> path;
     if (algorithm == "dijkstra") {
         path = dijkstra(movieGraph, startActorId, targetActorId);
     } else if (algorithm == "bfs") {
@@ -48,6 +49,17 @@ int main(int argc, char *argv[]) {
     } else {
         cerr << "Invalid algorithm choice." << endl;
         return 0;
+    }
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+    std::ofstream file("times.txt");
+    if (file.is_open()) {
+        file << "Time taken by function: "
+             << duration.count() << " microseconds" << std::endl;
+        file.close();
+    } else {
+        std::cerr << "Unable to open file" << std::endl;
     }
 
     if (path.empty()) {
@@ -66,6 +78,7 @@ int main(int argc, char *argv[]) {
         n++;
     }
     cout << actorNames.at(*(path.end() - 1)) << endl;
+
 
     return 0;
 }

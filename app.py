@@ -8,8 +8,8 @@ app = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
-def run_cpp_program(start_actor, end_actor, algorithm):
 
+def run_cpp_program(start_actor, end_actor, algorithm):
     command = ['./main', start_actor, end_actor, algorithm]
     logging.info(f"Executing command: {command}")
 
@@ -25,9 +25,11 @@ def run_cpp_program(start_actor, end_actor, algorithm):
     with open('final_result.txt', 'w') as file:
         file.write(result.stdout)
 
+
 @app.route('/')
 def index():
     return render_template('web.html')
+
 
 @app.route('/start-process', methods=['POST'])
 def start_process():
@@ -43,16 +45,32 @@ def start_process():
 
     return jsonify({"message": "Process started with " + algorithm + " algorithm"}), 202
 
+
 @app.route('/check-progress')
 def check_progress():
     progress = read_progress_from_file()
     logging.info(f"Current progress: {progress}")  # Log the current progress
     return jsonify({"progress": progress})
 
+
 @app.route('/get-final-result')
 def get_final_result():
     final_result = read_final_result()
-    return jsonify({'result': final_result})
+    execution_time = read_execution_time()
+    return jsonify({'result': final_result, 'time': execution_time})
+
+def read_execution_time():
+    time_file_path = 'times.txt'
+    try:
+        if os.path.exists(time_file_path):
+            with open(time_file_path, 'r') as file:
+                time_taken = file.readlines()[-1].strip()  # Get the last line of the file
+                return time_taken.split()[-2]  # Assuming the time is always before the last word 'microseconds'
+        else:
+            return "Time data not available."
+    except Exception as e:
+        logging.error(f"Error reading time file: {e}")
+        return "Error reading time."
 
 def read_final_result():
     result_file_path = 'final_result.txt'
@@ -62,6 +80,7 @@ def read_final_result():
             return file.read().strip()
     else:
         return "Result not available yet."
+
 
 def read_progress_from_file():
     progress_file_path = 'progress.txt'
@@ -89,10 +108,12 @@ def reset_files():
     with open('progress.txt', 'w') as file:
         file.truncate(0)
 
+
 @app.route('/clear-files', methods=['GET'])
 def clear_files():
     reset_files()
     return jsonify({"message": "Results cleared successfully"})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
