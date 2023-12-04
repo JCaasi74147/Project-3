@@ -15,14 +15,14 @@ else
 fi
 
 echo "Compiling C++ code..."
-g++ main.cpp -o main
+g++ -std=c++11 main.cpp -o main
 if [[ $? -ne 0 ]]; then
     echo "Compilation failed."
     exit 1
 fi
 
 echo "Starting Flask app..."
-python app.py &
+python3 app.py &
 
 echo "Opening browser..."
 open http://127.0.0.1:5000
